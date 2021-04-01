@@ -11,7 +11,7 @@ Route::post('/register', 'JornalistaController@register');
  * URLs relacionados ao jornalista com autenticação
  */
 Route::group(['middleware' => 'checkAuth'], function(){
-    Route::post('/me', 'JornalistaController@me');
+    Route::get('/me', 'JornalistaController@me');
 });
 
 /**
