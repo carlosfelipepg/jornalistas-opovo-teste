@@ -19,6 +19,7 @@ class CreateJornalistasTable extends Migration
             $table->string('sobrenome');
             $table->string('email');
             $table->string('password', 64);
+            $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
         });
