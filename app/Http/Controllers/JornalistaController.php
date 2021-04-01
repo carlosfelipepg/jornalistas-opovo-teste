@@ -2,16 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 use App\Models\Jornalista;
 
 use Illuminate\Support\Facades\Auth;
-use Validator;
+use Illuminate\Support\Facades\Validator;
 
 class JornalistaController extends Controller
 {
-    public function login(Request $request){
+    /**
+     * Display a listing of the resource.
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function login(Request $request): JsonResponse
+    {
     	$validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required|string|min:6',
@@ -28,7 +35,8 @@ class JornalistaController extends Controller
         return $this->createNewToken($token);
     }
 
-    public function register(Request $request) {
+    public function register(Request $request): JsonResponse
+    {
         $validator = Validator::make($request->all(), [
             'nome' => 'required|string|between:2,100',
             'sobrenome' => 'required|string|between:2,100',
@@ -51,11 +59,13 @@ class JornalistaController extends Controller
         ], 201);
     }
 
-    public function me() {
+    public function me(): JsonResponse
+    {
         return response()->json(auth()->user());
     }
 
-    protected function createNewToken($token){
+    protected function createNewToken($token): JsonResponse
+    {
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',

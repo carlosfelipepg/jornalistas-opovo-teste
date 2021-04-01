@@ -1,8 +1,9 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Noticia extends Model
 {
@@ -11,7 +12,7 @@ class Noticia extends Model
     protected $table = 'noticias';
 
     protected $fillable = [
-        'titulo', 'descricao', 'corpo', 'imagem',
+        'titulo', 'descricao', 'corpo', 'imagem', 'jornalista_id',
     ];
 
     public function jornalista() {
