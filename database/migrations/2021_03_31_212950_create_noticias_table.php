@@ -16,6 +16,7 @@ class CreateNoticiasTable extends Migration
         Schema::create('noticias', function (Blueprint $table) {
             $table->id();
             $table->foreignId('jornalista_id')->constrained('jornalistas');
+            $table->foreignId('tipo_noticia_id')->constrained('tipo_noticias');
             $table->string('titulo');
             $table->longText('descricao');
             $table->longText('corpo');

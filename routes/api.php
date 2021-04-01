@@ -18,4 +18,9 @@ Route::group(['middleware' => 'checkAuth', 'prefix' => 'news'], function(){
     Route::post('/update/{id}', 'NoticiaController@update');
     Route::post('/delete/{id}', 'NoticiaController@destroy');
     Route::get('/me', 'NoticiaController@me');
+    Route::get('/type/{id}', 'NoticiaController@typeShow');
+});
+
+Route::group(['middleware' => 'checkAuth', 'prefix' => 'type'], function(){
+    Route::post('/create', 'TipoNoticiaController@store');
 });

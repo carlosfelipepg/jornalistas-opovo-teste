@@ -2,26 +2,33 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\TipoNoticia;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 
 use App\Models\Noticia;
+use Illuminate\Validation\ValidationException;
 
 class NoticiaController extends Controller
 {
+    protected $user;
+
+    public function __construct()
+    {
+        $this->user = auth()->user();
+    }
+
     /**
-     * Display a listing of the resource.
+     * Store a newly created resource in storage.
      *
      * @return JsonResponse
      */
     public function me()
     {
-        $user = auth()->user();
-
-        $noticias = Noticia::with('jornalista')
-            ->where('jornalista_id', $user['id'])
+        $noticias = Noticia::with(['jornalista', 'tipo_noticia'])
+            ->where('jornalista_id', $this->user['id'])
             ->get();
         return response()->json($noticias);
     }
@@ -29,58 +36,41 @@ class NoticiaController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  Request  $request
+     * @param Request $request
      * @return JsonResponse
+     * @throws ValidationException
      */
     public function store(Request $request): JsonResponse
     {
-        $user = auth()->user();
-
-        if(!$user) {
-            return response()->json(['Usuário não encontrado'], 404);
-        }
-
         $validator = Validator::make($request->all(), [
             'titulo' => 'required|string',
             'descricao' => 'required|string',
             'corpo' => 'required|string',
-            'imagem' => 'string'
+            'imagem' => 'string',
+            'id_tipo_noticia' => 'required|numeric'
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
+        $tipo_noticia = TipoNoticia::find($request['id_tipo_noticia']);
+
+        if(!$tipo_noticia) {
+            return response()->json([
+                'error'   => 'Tipo notícia não encontrado',
+            ], 404);
+        }
+
         $noticia = new Noticia();
         $noticia->fill(array_merge(
             $validator->validated(),
-            ['jornalista_id' => $user['id']]
+            ['jornalista_id' => $this->user['id']],
+            ['tipo_noticia_id' => $tipo_noticia['id']]
         ));
         $noticia->save();
 
         return response()->json($noticia, 201);
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function edit($id)
-    {
-        //
     }
 
     /**
@@ -96,7 +86,7 @@ class NoticiaController extends Controller
 
         if(!$noticia) {
             return response()->json([
-                'message'   => 'Record not found',
+                'error'   => 'Record not found',
             ], 404);
         }
 
@@ -118,12 +108,37 @@ class NoticiaController extends Controller
 
         if(!$noticia) {
             return response()->json([
-                'message'   => 'Record not found',
+                'error'   => 'Record not found',
             ], 404);
         }
 
         $noticia->delete();
 
         return response()->json('Deletado');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param $id_tipo_noticia
+     * @return JsonResponse
+     */
+    public function typeShow($id_tipo_noticia)
+    {
+        $tipo_noticia = TipoNoticia::find($id_tipo_noticia);
+
+        if(!$tipo_noticia) {
+            return response()->json([
+                'error'   => 'Tipo noticia não existe',
+            ], 404);
+        }
+
+        $noticias = Noticia::with(['jornalista', 'tipo_noticia'])
+            ->where([
+                ['jornalista_id', $this->user['id']],
+                ['tipo_noticia_id', $tipo_noticia['id']]
+            ])
+            ->get();
+        return response()->json($noticias);
     }
 }

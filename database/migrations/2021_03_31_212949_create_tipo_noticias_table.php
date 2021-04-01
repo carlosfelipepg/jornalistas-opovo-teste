@@ -14,8 +14,8 @@ class CreateTipoNoticiasTable extends Migration
     public function up()
     {
         Schema::create('tipo_noticias', function (Blueprint $table) {
-            $table->id();            
-            $table->foreignId('noticia_id')->constrained('noticias');
+            $table->id();
+            $table->foreignId('jornalista_id')->constrained('jornalistas');
             $table->string('nome');
             $table->timestamps();
             $table->softDeletes();

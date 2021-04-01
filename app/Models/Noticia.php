@@ -12,7 +12,7 @@ class Noticia extends Model
     protected $table = 'noticias';
 
     protected $fillable = [
-        'titulo', 'descricao', 'corpo', 'imagem', 'jornalista_id',
+        'titulo', 'descricao', 'corpo', 'imagem', 'jornalista_id', 'tipo_noticia_id',
     ];
 
     public function jornalista() {

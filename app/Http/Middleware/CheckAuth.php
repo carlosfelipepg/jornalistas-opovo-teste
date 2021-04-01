@@ -6,7 +6,6 @@ use Closure;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Http\Middleware\BaseMiddleware;
-use function MongoDB\BSON\toJSON;
 
 class CheckAuth extends BaseMiddleware
 {
@@ -19,6 +18,9 @@ class CheckAuth extends BaseMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
+        if (!auth()->user()){
+            return response()->json(['error' => 'Usuário não encontrado']);
+        }
         try {
             $user = JWTAuth::parseToken()->authenticate();
             $request->merge(['user' => auth('api')->user()]);
