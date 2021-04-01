@@ -7,13 +7,12 @@ use Illuminate\Http\Request;
 
 use App\Models\Jornalista;
 
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
+use Validator;
 
 class JornalistaController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Autentica os jornalistas e criar gerar o token com 5 minutos de expiração
      * @param Request $request
      * @return JsonResponse
      */
@@ -28,13 +27,18 @@ class JornalistaController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        if (! $token = auth('api')->attempt($validator->validated())) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+        if (! $token = auth('api')->setTTL(5)->attempt($validator->validated())) {
+            return response()->json(['error' => 'Usuário não autorizado'], 401);
         }
 
         return $this->createNewToken($token);
     }
 
+    /**
+     * Registrar jornalistas com as devidas validações
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function register(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
@@ -54,16 +58,24 @@ class JornalistaController extends Controller
                 ));
 
         return response()->json([
-            'message' => 'User successfully registered',
+            'message' => 'Usuário registrado com sucesso',
             'user' => $user
         ], 201);
     }
 
+    /**
+     * Retornar informações do jornalista autenticado
+     * @return JsonResponse
+     */
     public function me(): JsonResponse
     {
         return response()->json(auth()->user());
     }
 
+    /**
+     * Gerar um nove token para o usuário
+     * @return JsonResponse
+     */
     protected function createNewToken($token): JsonResponse
     {
         return response()->json([

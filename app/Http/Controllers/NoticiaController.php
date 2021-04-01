@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\TipoNoticia;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
 
 use App\Models\Noticia;
@@ -21,20 +20,7 @@ class NoticiaController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @return JsonResponse
-     */
-    public function me()
-    {
-        $noticias = Noticia::with(['jornalista', 'tipo_noticia'])
-            ->where('jornalista_id', $this->user['id'])
-            ->get();
-        return response()->json($noticias);
-    }
-
-    /**
-     * Store a newly created resource in storage.
+     * Criar uma notícia e gerar relação com o jornalista e tipo notícia
      *
      * @param Request $request
      * @return JsonResponse
@@ -74,13 +60,13 @@ class NoticiaController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Atualizar notícia criada
      *
-     * @param  Request  $request
-     * @param  int  $id
+     * @param Request $request
+     * @param int $id
      * @return JsonResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): JsonResponse
     {
         $noticia = Noticia::find($id);
 
@@ -90,19 +76,30 @@ class NoticiaController extends Controller
             ], 404);
         }
 
-        $noticia->fill($request->all());
+        $tipo_noticia = TipoNoticia::find($request['id_tipo_noticia']);
+
+        if(!$tipo_noticia) {
+            return response()->json([
+                'error'   => 'Tipo notícia não encontrado',
+            ], 404);
+        }
+
+        $noticia->fill(array_merge(
+            $request->all(),
+            ['tipo_noticia_id' => $tipo_noticia['id']]
+        ));
         $noticia->save();
 
         return response()->json($noticia);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Deletar notícia criada
      *
-     * @param  int  $id
+     * @param int $id
      * @return JsonResponse
      */
-    public function destroy($id)
+    public function destroy(int $id): JsonResponse
     {
         $noticia = Noticia::find($id);
 
@@ -114,16 +111,29 @@ class NoticiaController extends Controller
 
         $noticia->delete();
 
-        return response()->json('Deletado');
+        return response()->json(['message' => 'Deletado']);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Listar notícias do jornalista autenticado
+     *
+     * @return JsonResponse
+     */
+    public function me(): JsonResponse
+    {
+        $noticias = Noticia::with(['jornalista', 'tipo_noticia'])
+            ->where('jornalista_id', $this->user['id'])
+            ->get();
+        return response()->json($noticias);
+    }
+
+    /**
+     * Listar notícias filtrado pelo tipo
      *
      * @param $id_tipo_noticia
      * @return JsonResponse
      */
-    public function typeShow($id_tipo_noticia)
+    public function typeShow($id_tipo_noticia): JsonResponse
     {
         $tipo_noticia = TipoNoticia::find($id_tipo_noticia);
 

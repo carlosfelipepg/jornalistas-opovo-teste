@@ -18,7 +18,6 @@ class CreateTipoNoticiasTable extends Migration
             $table->foreignId('jornalista_id')->constrained('jornalistas');
             $table->string('nome');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

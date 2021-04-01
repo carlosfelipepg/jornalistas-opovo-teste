@@ -22,7 +22,6 @@ class CreateNoticiasTable extends Migration
             $table->longText('corpo');
             $table->string('imagem')->nullable()->default(null);;
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

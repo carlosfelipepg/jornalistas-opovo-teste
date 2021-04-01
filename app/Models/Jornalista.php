@@ -21,12 +21,17 @@ class Jornalista extends Model implements JWTSubject
         return $this->getKey();
     }
 
-    public function getJWTCustomClaims() {
+    public function getJWTCustomClaims(): array
+    {
         return [];
-    }   
+    }
 
     public function noticias() {
         return $this->hasMany(Noticia::class);
+    }
+
+    public function tipo_noticias() {
+        return $this->hasMany(TipoNoticia::class);
     }
 
 }
